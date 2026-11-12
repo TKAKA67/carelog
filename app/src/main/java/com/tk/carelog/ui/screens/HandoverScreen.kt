@@ -58,12 +58,13 @@ fun HandoverScreen(app: CareLogApp, snap: Snapshot, onClose: () -> Unit) {
     var answer by remember { mutableStateOf("") }
     var typed by remember { mutableStateOf("") }
 
-    // 답변을 타자 치듯 보여준다
+    // 답변을 어절 단위로 이어서 보여준다 (음성 재생 중 화면 갱신을 줄이기 위해 글자 단위는 쓰지 않음)
     LaunchedEffect(answer) {
         typed = ""
-        for (i in answer.indices) {
-            typed = answer.substring(0, i + 1)
-            delay(28)
+        val words = answer.split(" ")
+        for (i in words.indices) {
+            typed = words.subList(0, i + 1).joinToString(" ")
+            delay(90)
         }
     }
 
