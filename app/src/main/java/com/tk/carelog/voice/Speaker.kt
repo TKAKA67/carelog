@@ -82,6 +82,8 @@ class Speaker(context: Context) : TextToSpeech.OnInitListener {
             play(cached, text)
         } else {
             tts.stop() // 이전 합성이 남아 있으면 비우고 새 문장부터
+            // 영상 편집용: 어떤 파일이 어떤 문장인지 남겨 둔다
+            try { File(dir, "index.txt").appendText("$id.wav\t$text\n") } catch (_: Throwable) {}
             tts.synthesizeToFile(text, Bundle(), File(dir, "$id.part"), id)
         }
     }
