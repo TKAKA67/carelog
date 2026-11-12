@@ -40,7 +40,14 @@ class DriveRecorderService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        startAsForeground()
+        // 위치 권한이 없거나 백그라운드 시작이 막히면 startForeground가 예외를 던진다 → 앱이 죽지 않게 조용히 종료
+        try {
+            startAsForeground()
+        } catch (t: Throwable) {
+            Log.w(TAG, "포그라운드 시작 실패, 기록 서비스 중단", t)
+            stopSelf()
+            return
+        }
         signals = CarSignals(this).also { it.start() }
         handler.post(loop)
         running = true
@@ -110,9 +117,11 @@ class DriveRecorderService : Service() {
     }
 
     override fun onDestroy() {
-        finishTrip()
-        handler.removeCallbacks(loop)
-        signals.stop()
+        if (::signals.isInitialized) {
+            finishTrip()
+            handler.removeCallbacks(loop)
+            signals.stop()
+        }
         running = false
         super.onDestroy()
     }

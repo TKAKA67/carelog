@@ -12,6 +12,7 @@ import com.tk.carelog.engine.VerdictEngine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.concurrent.Executors
 import kotlin.math.max
 
 /** 주행 중 화면에 보여줄 실시간 값 */
@@ -58,6 +59,9 @@ data class Snapshot(
 }
 
 class Repository(private val store: Store) {
+    /** 디스크 저장은 순서대로, 메인 스레드 밖에서 */
+    private val io = Executors.newSingleThreadExecutor()
+
     private val _snapshot = MutableStateFlow(compute(store.load()))
     val snapshot: StateFlow<Snapshot> = _snapshot.asStateFlow()
 
@@ -72,8 +76,8 @@ class Repository(private val store: Store) {
     @Synchronized
     fun update(f: (State) -> State) {
         val next = f(state)
-        store.save(next)
         _snapshot.value = compute(next)
+        io.execute { store.save(next) }
     }
 
     fun setLive(l: LiveDrive) {

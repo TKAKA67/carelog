@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.sin
 
 /**
@@ -157,13 +158,15 @@ class DemoScenarios(private val repo: Repository) {
 
             // 첫 트립 + 그 주의 나머지 트립 반영 (판정은 마지막에 한 번)
             val day = 24L * 3600 * 1000
-            repo.addTrip(acc.finish(), advanceOdometer = true, evaluate = false)
+            val first = acc.finish()
             val perTrip = if (script == Script.CITY) 16.0 else 58.0
             val count = if (script == Script.CITY) 13 else 7
-            for (k in 1..count) {
-                val end = now - (k * 7 * day) / (count + 1)
-                repo.addTrip(buildTrip(script, end, perTrip), advanceOdometer = true, evaluate = false)
+            // 1초 단위 시뮬레이션은 무거우므로 메인 스레드 밖에서 만든다
+            val week = withContext(Dispatchers.Default) {
+                (1..count).map { k -> buildTrip(script, now - (k * 7 * day) / (count + 1), perTrip) }
             }
+            repo.addTrip(first, advanceOdometer = true, evaluate = false)
+            week.forEach { repo.addTrip(it, advanceOdometer = true, evaluate = false) }
             repo.reevaluate()
             _running.value = null
         }
