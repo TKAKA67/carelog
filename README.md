@@ -6,7 +6,7 @@ Pleos Connect용 차량 정비·관리 이력 앱입니다. 2026 현대자동차
 
 ## APK
 
-- 저장소 안: [`apk/TKAKA67_CareLog_release.apk`](apk/TKAKA67_CareLog_release.apk) (release 빌드)
+- 저장소 안: [`apk/김민준_CareLog_release.apk`](apk/김민준_CareLog_release.apk) (release 빌드)
 - GitHub Release: https://github.com/TKAKA67/carelog/releases
 
 차가 실제 주행 데이터로 운행 조건을 판단해서 정비 항목별로 언제 무엇을 하면 되는지 알려주고,
@@ -74,7 +74,7 @@ app/src/main/java/com/tk/carelog
 
 ### APK로 바로 실행
 1. Pleos Connect 에뮬레이터를 켭니다.
-2. `adb install apk/TKAKA67_CareLog_release.apk`
+2. `adb install apk/김민준_CareLog_release.apk`
 3. 앱을 열면 시연 데이터(그랜저 가솔린, 42,180km)가 들어간 상태로 시작합니다. 권한 요청은 모두 허용합니다.
 
 ### 소스에서 빌드
