@@ -1,7 +1,13 @@
-# CareLog
+# CareLog (케어로그)
 
-Pleos Connect용 차량 정비·관리 이력 앱입니다.
-2026 현대자동차그룹 차량용 앱 개발 공모전 출품작.
+> 차량 주행 데이터로 운행 조건을 판정해 정비 시기를 정하고, 그 정비 이력을 차량 ID에 쌓아 중고차 거래 때 신뢰까지 승계하는 차량 관리 앱
+
+Pleos Connect용 차량 정비·관리 이력 앱입니다. 2026 현대자동차그룹 차량용 앱 개발 공모전 출품작.
+
+## APK
+
+- 저장소 안: [`apk/TKAKA67_CareLog_release.apk`](apk/TKAKA67_CareLog_release.apk) (release 빌드)
+- GitHub Release: https://github.com/TKAKA67/carelog/releases
 
 차가 실제 주행 데이터로 운행 조건을 판단해서 정비 항목별로 언제 무엇을 하면 되는지 알려주고,
 정비한 내용을 차에 기록해 두었다가 차를 팔 때 케어 패스포트로 넘겨줍니다.
@@ -50,29 +56,49 @@ app/src/main/java/com/tk/carelog
 |---|---|
 | Vehicle SDK — Odometer | 총 주행거리, 트립 거리 |
 | Vehicle SDK — Safety | 엔진오일 레벨 상태, 경고등 |
-| Vehicle SDK — CarInfo | 차종 확인 (예정) |
+| Vehicle SDK — CarInfo | 차량 ID, 차종 |
 | AAOS 차량 속성 | 차속, 기어 |
 | NaviHelper | 정비소 경유 제안 (예정) |
 | TTS / STT | Pleos SDK 공개 전까지 Android 기본 API 사용 |
 
-## 실행
+## 테스트 환경
 
-1. Android Studio에 Pleos Connect Emulator(v2.1.0, API 34) 설치 후 AVD 생성
+| 항목 | 값 |
+|---|---|
+| 에뮬레이터 | Pleos Connect Emulator v2.1.0 (Android Studio AVD, Android API 35) |
+| 화면 규격 | 에뮬레이터 기본 가로형 화면. 앱은 가로 1280dp 기준으로 설계했고, 더 넓은 화면에서는 비율에 맞춰 확대됩니다 |
+| 빌드 | Android Studio, Gradle 8.10.2, AGP 8.8.2, Kotlin 2.0, JDK 17 |
+| SDK | compileSdk 35, minSdk 28, Pleos Vehicle SDK 2.3.2 |
+
+## 실행 방법
+
+### APK로 바로 실행
+1. Pleos Connect 에뮬레이터를 켭니다.
+2. `adb install apk/TKAKA67_CareLog_release.apk`
+3. 앱을 열면 시연 데이터(그랜저 가솔린, 42,180km)가 들어간 상태로 시작합니다. 권한 요청은 모두 허용합니다.
+
+### 소스에서 빌드
+1. Android Studio에 Pleos Connect Emulator 설치 후 AVD 생성
 2. 에뮬레이터 부팅 후 `setup_devbox.bat` 실행 (프로젝트 CRN 등록)
-3. `local.properties`에 Pleos 키 추가
+3. `local.properties`에 Pleos 키 추가 (저장소에는 포함하지 않음)
 
 ```
 pleos.clientId=...
 pleos.clientSecret=...
 ```
 
-4. Run
+4. Gradle JDK를 17로 지정하고 Run
+
+### 필요한 설정
+- 위치 권한: 산길 판정과 정비소 반경 확인에만 사용 (거부해도 나머지 기능은 동작)
+- 에뮬레이터에 한국어 TTS 엔진이 있으면 음성 안내가 나오고, 없으면 화면 문구만 표시됩니다
+- 설정 탭 → `시연 상태로 초기화`로 언제든 처음 상태로 되돌릴 수 있습니다
 
 ## 시연 순서
 
 1. 운행 → `도심 출퇴근 1주` : 첫 트립을 실시간으로 보여주고, 주차하면 엔진오일 주기가 가혹으로 바뀌는 브리핑
 2. 브리핑에서 `정비 계획 추가` → 정비 권장 화면에 경유 계획 표시
-3. 정비 기록 → `말하기` 또는 정비소 확인 QR
+3. 정비 기록 → `기록` 버튼 또는 정비소 확인 QR
 4. 판매 준비 → 기록 완성도와 패스포트 QR → `시승 응답 모드 켜기`
 5. 시승 응답 모드에서 질문 선택 → `명의 이전 완료`
 6. 설정 → 시연 상태로 초기화 후 `고속도로 출퇴근 1주` : 일반 주기 유지 브리핑
