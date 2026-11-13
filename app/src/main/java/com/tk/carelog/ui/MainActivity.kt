@@ -89,18 +89,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    // 화면이 보이는 동안만 오디오 경로를 깨워 둔다 (시연 모드 한정, 첫 음성 끊김 방지)
-    override fun onStart() {
-        super.onStart()
-        val app = application as CareLogApp
-        if (app.repo.state.settings.demoMode) app.speaker.startKeepAlive()
-    }
-
-    override fun onStop() {
-        (application as CareLogApp).speaker.stopKeepAlive()
-        super.onStop()
-    }
 }
 
 enum class Tab(val label: String, val icon: ImageVector) {

@@ -2,8 +2,6 @@ package com.tk.carelog.voice
 
 import android.content.Context
 import android.media.AudioAttributes
-import android.media.AudioFormat
-import android.media.AudioTrack
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -121,50 +119,6 @@ class Speaker(context: Context) : TextToSpeech.OnInitListener {
             it.release()
         }
         player = null
-    }
-
-    // ---------------------------------------------------------------- 오디오 경로 깨워 두기
-    /**
-     * 소리가 한동안 없으면 안드로이드 출력 스트림과 PC(에뮬레이터)·블루투스 오디오가 절전 상태로 들어가고,
-     * 다음 소리의 첫 1~2초가 끊기거나 늦게 나온다. 무음을 계속 흘려 경로를 깨어 있게 한다.
-     * 시연(에뮬레이터) 모드에서 화면이 보일 때만 켠다.
-     */
-    private var keepAlive: AudioTrack? = null
-
-    fun startKeepAlive() {
-        if (keepAlive != null) return
-        try {
-            val rate = 48_000
-            val frames = rate / 2 // 0.5초 무음을 반복
-            keepAlive = AudioTrack.Builder()
-                .setAudioAttributes(attrs)
-                .setAudioFormat(
-                    AudioFormat.Builder()
-                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                        .setSampleRate(rate)
-                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                        .build()
-                )
-                .setTransferMode(AudioTrack.MODE_STATIC)
-                .setBufferSizeInBytes(frames * 2)
-                .build()
-                .apply {
-                    write(ShortArray(frames), 0, frames)
-                    setLoopPoints(0, frames, -1)
-                    play()
-                }
-        } catch (t: Throwable) {
-            Log.w("CareLog/TTS", "무음 유지 시작 실패", t)
-            keepAlive = null
-        }
-    }
-
-    fun stopKeepAlive() {
-        keepAlive?.let {
-            try { it.stop() } catch (_: Throwable) {}
-            it.release()
-        }
-        keepAlive = null
     }
 
     fun stop() {
